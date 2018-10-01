@@ -18,7 +18,7 @@ rc=${acc}_rc.txt
 vcf=${acc}.vcf.gz
 Q_vcf=${acc}_qual.vcf.gz
 bwa=${acc}_bwa_output
-dup_bam=no_dup_${bam}
+dup_bam=no_dup_${bwa}
 
 echo "You're working on accession $1"
 
@@ -41,12 +41,11 @@ rm positionsort.bam
 rm *fastq.gz
 
 # call 
-bcftools mpileup -Ou -f Hannah_Begonia_baits.fna ~/Process/Hairdrier/$dup_bam  > $vcf
-bcftools call -mv -Oz $vcf | bcftools filter -S . -i 'FMT/GT="1/1" & QUAL > 29' | bcftools view -Oz -o $Q_vcf
+bcftools mpileup -B -Ou -f Hannah_Begonia_baits.fna ~/Process/Hairdrier/$dup_bam  | bcftools call -mv -Ou | bcftools filter -S 0 -i 'FMT/GT="1/1" & QUAL > 29' -Oz -o $Q_vcf
 tabix $Q_vcf
 
 # get consensus fasta from vcf
-bcftools consensus -H A -f Hannah_Begonia_baits.fna  $Q_vcf > $output
+bcftools consensus -f Baits.fna  $Q_vcf > $output
 
 
 exit 0
