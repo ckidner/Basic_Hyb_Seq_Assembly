@@ -25,20 +25,30 @@ echo "You're working on accession $1"
 # Trimmomatic
 java -jar ~/../../opt/Trimmomatic-0.36/trimmomatic-0.36.jar PE -phred33 $F $R forward_paired.fq.gz forward_unpaired.fq.gz reverse_paired.fq.gz reverse_unpaired.fq.gz ILLUMINACLIP:~/../../opt/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
+rm *fastq.gz
+
 # BWA
 bwa mem Baits.fna forward_paired.fq.gz reverse_paired.fq.gz > output.sam 2> $bwa
 
+
+#Because BWA can sometimes leave unusual FLAG information on SAM records, it is helpful when working with many tools to first clean up read pairing information and flags:
+
 #to sorted, de-duplicate, indexed bam
 samtools view -bS output.sam | samtools sort -n -o namesort.bam
+rm output.sam
 samtools fixmate -m namesort.bam fixmate.bam
+rm namesort.bam
 samtools sort -o positionsort.bam fixmate.bam
+rm fixmate.bam
 samtools markdup -s -r positionsort.bam ~/Process/Hairdrier/$dup_bam 2>$report
 samtools index ~/Process/Hairdrier/$dup_bam
-rm output.sam
-rm namesort.bam
-rm fixmate.bam
+
+samtools view -uS output.sam | samtools sort -n  - | samtools fixmate -m  - | samtools sort - | samtools markdup -s -r - tmp.bam
+
+# -u to output an uncompressed bam
+# - to work on stdin
+
 rm positionsort.bam
-rm *fastq.gz
 
 # call 
 bcftools mpileup -B -Ou -f Hannah_Begonia_baits.fna ~/Process/Hairdrier/$dup_bam  | bcftools call -mv -Ou | bcftools filter -S 0 -i 'FMT/GT="1/1" & QUAL > 29' -Oz -o $Q_vcf
