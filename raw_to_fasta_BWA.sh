@@ -32,6 +32,18 @@ bwa mem Baits.fna forward_paired.fq.gz reverse_paired.fq.gz > output.sam 2> $bwa
 
 
 #Because BWA can sometimes leave unusual FLAG information on SAM records, it is helpful when working with many tools to first clean up read pairing information and flags:
+samtools fixmate -O bam output.sam  fixmate.bam
+
+#sort into coordinate sorted
+
+samtools sort -O bam -o sorted.bam
+
+#Make a refernce dict
+gatk CreateSequenceDictionary -R Baits.fna -O Baits.dict
+
+# To identify duplicates we currently recommend the use of either the Picard or biobambam’s mark duplicates tool.
+gatk MarkDuplicates -I sorted.bam -O tmp
+
 
 #to sorted, de-duplicate, indexed bam
 samtools view -bS output.sam | samtools sort -n -o namesort.bam
