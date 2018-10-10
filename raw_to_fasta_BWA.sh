@@ -3,7 +3,7 @@
 # Assumes files are in form *_1.fastq.gz and are in the folder ~/Process/Hairdrier
 # Assumes baits sequences are in the file Baits.fna and that a BWA index has been made using the command
 # bwa index Baits.fna
-# Catherine Kidner 26 Sept 2018
+# Catherine Kidner 10 Oct 2018
 
 
 echo "Hello world"
@@ -26,21 +26,21 @@ echo "You're working on accession $1"
 java -jar ~/../../opt/Trimmomatic-0.36/trimmomatic-0.36.jar PE -phred33 $F $R forward_paired.fq.gz forward_unpaired.fq.gz reverse_paired.fq.gz reverse_unpaired.fq.gz ILLUMINACLIP:~/../../opt/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 # BWA
-bwa mem Baits.fna forward_paired.fq.gz reverse_paired.fq.gz > output.sam 2> $bwa_report
+#bwa mem Baits.fna forward_paired.fq.gz reverse_paired.fq.gz > output.sam 2> $bwa_report
+
+bwa mem 1_ref.fna -B 20  forward_paired.fq.gz reverse_paired.fq.gz | samtools view -Sb -F 4 - > tmp.bam
 
 rm *fq.gz
 
 #to sorted, de-duplicated bam
-samtools view -bu output.sam | samtools sort -n -T /tmp - | samtools fixmate -mr - - | samtools sort -T /tmp -| samtools markdup -sr - ~/Process/Hairdrier/$bwa
+samtools sort -n -T /tmp tmp.bam | samtools fixmate -mr - - | samtools sort -T /tmp -| samtools markdup -sr - ~/Process/Hairdrier/$bwa
 
 #run without de-dup
 #samtools view -bu output.sam | samtools sort -n -T /tmp - | samtools fixmate -mr - - | samtools sort - ~/Process/Hairdrier/$bwa
 
-rm output.sam
-
 # call 
 
-bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -mv -Ou | bcftools filter -S . -i 'FMT/GT="1/1" & QUAL > 29' -Oz -o $Q_vcf
+bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -mv -Ou | bcftools view -i 'FMT/GT="1/1"' -Oz -o $Q_vcf
 
 tabix $Q_vcf
 
