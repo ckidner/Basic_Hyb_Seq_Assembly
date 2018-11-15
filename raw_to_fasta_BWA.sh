@@ -23,7 +23,7 @@ echo "You're working on accession $1"
 java -jar ~/../../opt/Trimmomatic-0.36/trimmomatic-0.36.jar PE -phred33 $F $R forward_paired.fq.gz forward_unpaired.fq.gz reverse_paired.fq.gz reverse_unpaired.fq.gz ILLUMINACLIP:~/../../opt/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 # BWA
-bwa mem 1_ref.fna -B 20  forward_paired.fq.gz reverse_paired.fq.gz | samtools view -b -F 4 - > tmp.bam
+bwa mem Baits.fna -B 20  forward_paired.fq.gz reverse_paired.fq.gz | samtools view -b -F 4 - > tmp.bam
 # -B 20 sets  a high mapping stringency
 # -b outpus as bam format
 # -F 4 outputs only mapped reads
@@ -44,7 +44,7 @@ bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -
 # -B disable re-calculation of P values to reduce false SNPs
 # -Ou output as uncompressed for piping
 # -m allow multialleic caller
-# -v output varietn sites only
+# -v output varient sites only
 # -i include only those which match the filter (here for homozgous alternate)
 
 # index vcf file
@@ -52,6 +52,7 @@ tabix $Q_vcf
 
 # get consensus fasta from vcf
 bcftools consensus  -f Baits.fna  $Q_vcf > $output
+# add -A if want to call alternate alleles from heterozygotes
 
 
 exit 0
