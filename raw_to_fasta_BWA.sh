@@ -40,20 +40,21 @@ samtools sort -n -T /tmp tmp.bam | samtools fixmate -mr - - | samtools sort -T /
 # -r removes duplicated reads
 
 # call 
-bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -mv -Ou | bcftools view -i 'FMT/GT="1/1"' -Oz -o $Q_vcf
+bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -c -Ou | bcftools filter -i 'QULA>20 && DP>10' -Ou | bcftools view -o tmp.vcf
 # -B disable re-calculation of P values to reduce false SNPs
 # -Ou output as uncompressed for piping
 # -m allow multialleic caller
 # -v output varient sites only
 # -i include only those which match the filter (here for homozgous alternate)
+# -c older caller methods (to work with vcfutils)
 
 # index vcf file
-tabix $Q_vcf
+# tabix $Q_vcf
 
 # get consensus fasta from vcf
-bcftools consensus  -f Baits.fna  $Q_vcf > $output
+# bcftools consensus  -f Baits.fna  $Q_vcf > $output
 # add -A if want to call alternate alleles from heterozygotes
-
+# perl vcfutils_fasta.pl vcf2fq tmp.vcf > $output
 
 exit 0
 
