@@ -40,12 +40,13 @@ echo "You're working on accession $1"
 # -r removes duplicated reads
 
 # call 
-bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -mv -Ou | bcftools filter -i 'QUAL>20 && DP>10' -Ou | bcftools view -o tmp.vcf
+bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -c -Ou | bcftools filter -i 'QUAL>20 && DP>10' -Ou | bcftools view -o tmp.vcf
 # -B disable re-calculation of P values to reduce false SNPs
 # -Ou output as uncompressed for piping
 # -m allow multialleic caller
 # -v output varietn sites only
 # -i include only those which match the filter (here for homozgous alternate)
+# -c use oringal calling method
 
 # index vcf file
 # tabix $Q_vcf
