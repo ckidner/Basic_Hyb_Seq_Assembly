@@ -54,7 +54,7 @@ bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -
 # get consensus fasta from vcf
 # bcftools consensus  -f Baits.fna  $Q_vcf > $output
 # add -A if want to call alternate alleles from heterozygotes
-# perl vcfutils_fasta.pl vcf2fq tmp.vcf > $output
+perl vcfutils_fasta.pl vcf2fq tmp.vcf > $output
 
 exit 0
 
