@@ -40,7 +40,7 @@ samtools sort -n -T /tmp tmp.bam | samtools fixmate -mr - - | samtools sort -T /
 # -r removes duplicated reads
 
 # call 
-bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -c -Ou | bcftools filter -i 'QULA>20 && DP>10' -Ou | bcftools view -o tmp.vcf
+bcftools mpileup -B -Ou -f Baits.fna ~/Process/Hairdrier/$bwa  | bcftools call -c -Ou | bcftools filter -i 'QUAL>20 && DP>10' -Ou | bcftools view -o tmp.vcf
 # -B disable re-calculation of P values to reduce false SNPs
 # -Ou output as uncompressed for piping
 # -m allow multialleic caller
