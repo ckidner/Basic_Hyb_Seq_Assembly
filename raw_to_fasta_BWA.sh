@@ -23,10 +23,11 @@ echo "You're working on accession $1"
 java -jar ~/../../opt/Trimmomatic-0.36/trimmomatic-0.36.jar PE -phred33 $F $R forward_paired.fq.gz forward_unpaired.fq.gz reverse_paired.fq.gz reverse_unpaired.fq.gz ILLUMINACLIP:~/../../opt/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 # BWA
-bwa mem Baits.fna -A 20  forward_paired.fq.gz reverse_paired.fq.gz | samtools view -b -F 4 - > tmp.bam
-# -A 20 sets  a high mapping stringency
+bwa mem Baits.fna -T 30  forward_paired.fq.gz reverse_paired.fq.gz | samtools view -b -F 4 - > tmp.bam
+# -A 20 sets  a high mapping stringency (but doesn't seem to have any effect on output)
 # -b outpus as bam format
 # -F 4 outputs only mapped reads
+# -T INT 	Don’t output alignment with score lower than INT. Default is 30
 
 rm *fq.gz
 
